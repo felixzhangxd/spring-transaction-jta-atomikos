@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="
+			http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+			http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.2.xsd
+			http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.2.xsd
+			http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd">
+	<!-- 主数据源 -->
+	<bean id="master" class="com.atomikos.jdbc.AtomikosDataSourceBean" init-method="init" destroy-method="close">
+		<property name="uniqueResourceName" value="master" />
+		<property name="xaDataSourceClassName" value="com.mysql.jdbc.jdbc2.optional.MysqlXADataSource" />
+		<property name="xaProperties">
+			<props>
+				<prop key="URL">jdbc:mysql://127.0.0.1:3306/spring_transaction_master?useUnicode=true&amp;characterEncoding=UTF-8</prop>
+				<prop key="user">master</prop>
+				<prop key="password">master</prop>
+			</props>
+		</property>
+		<property name="poolSize" value="3" />
+	</bean>
+	
+	<!-- 从数据源 -->
+	<bean id="slave" class="com.atomikos.jdbc.AtomikosDataSourceBean" init-method="init" destroy-method="close">
+		<property name="uniqueResourceName" value="slave" />
+		<property name="xaDataSourceClassName" value="com.mysql.jdbc.jdbc2.optional.MysqlXADataSource" />
+		<property name="xaProperties">
+			<props>
+				<prop key="URL">jdbc:mysql://127.0.0.1:3306/spring_transaction_slave?useUnicode=true&amp;characterEncoding=UTF-8</prop>
+				<prop key="user">slave</prop>
+				<prop key="password">slave</prop>
+			</props>
+		</property>
+		<property name="poolSize" value="3" />
+	</bean>
+	
+	<bean id="jdbcTemplateMaster" class="org.springframework.jdbc.core.JdbcTemplate">
+		<property name="dataSource" ref="master" />
+	</bean>
+	
+	<bean id="jdbcTemplateSlave" class="org.springframework.jdbc.core.JdbcTemplate">
+		<property name="dataSource" ref="slave" />
+	</bean>
+</beans>	
